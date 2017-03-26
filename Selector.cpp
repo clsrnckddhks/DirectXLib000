@@ -3,6 +3,7 @@
 //[グローバル変数宣言 2017/03/18 - 2017/03/18]________________________
 LPDIRECT3D9        pD3d;
 LPDIRECT3DDEVICE9  pDevice;
+LPD3DXFONT         pFont;
 PCAMERA            pMainCamera;
 NETWORK            NetWork;
 char               cKeys[ KEY_NUM ];
@@ -44,6 +45,12 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR szStr, int CmdSh
 			pDevice->BeginScene();
 			pDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 30, 30, 30 ), 1.0f, 0 );
 			Update();
+			#ifdef _DEBUG
+				Debug();
+			#endif
+			for( int nCnt = 0; nCnt < KEY_NUM; nCnt++ ) {
+				( bKeys[ nCnt ] ) ? nKeys[ nCnt ]++ : nKeys[ nCnt ] = 0;
+			}
 			pDevice->EndScene();
 			pDevice->Present( NULL, NULL, NULL, NULL );
 			ShowFPS();
@@ -89,6 +96,8 @@ HRESULT InitD3d( HWND hWnd ) {
 	d3dpp.Windowed = TRUE;
 
 	pD3d->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &pDevice );
+
+	D3DXCreateFont( pDevice , 20 , 10 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , "MS ゴシック" , &pFont );
 
 	Init();
 
@@ -201,11 +210,20 @@ void NETWORK::Init( void ) {
 	}
 }
 void NETWORK::Update( void ) {
-	
+
+}
+void DrawString( char cText[], int nX, int nY ) {
+	RECT rc;
+	rc.left   = nX;
+	rc.top    = nY;
+	rc.right  = WINDOW_WIDTH;
+	rc.bottom = WINDOW_HEIGHT;
+	pFont->DrawText( NULL , cText , -1 , &rc , NULL , 0xFF88FF88 );
 }
 void FreeDx( void ) {
 	SAFE_RELEASE( pDevice );
 	SAFE_RELEASE( pD3d );
+	SAFE_RELEASE( pFont );
 }
 void ShowFPS ( void ) {
 	static int nFrameCount = 0;
@@ -223,8 +241,8 @@ void ShowFPS ( void ) {
 	}
 	nFrameCount++;
 }
-bool GetKey( WPARAM wParam ) {
-	return bKeys[ wParam ];
+int  GetKey( WPARAM wParam ) {
+	return nKeys[ wParam ];
 }
 void SetMainCamera( CAMERA * Camera ) {
 	pMainCamera = Camera;

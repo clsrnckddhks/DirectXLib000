@@ -53,6 +53,8 @@ void Init( void );
 void Update( void );
 void Load( void );
 void Draw( void );
+void DrawString( char cText[], int nX, int nY );
+void Debug( void );
 int  GetKey( WPARAM wParam );
 void ShowFPS( void );
 void SetMainCamera( CAMERA * Camera );
